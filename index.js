@@ -1,7 +1,12 @@
 const express = require("express");
-const app = express();
+const axios = require("axios");
 
-const VERIFY_TOKEN = "rekha";
+const app = express();
+app.use(express.json());
+
+const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
+const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
+const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
@@ -12,14 +17,42 @@ app.get("/webhook", (req, res) => {
     return res.status(200).send(challenge);
   }
 
-  return res.sendStatus(403);
+  res.sendStatus(403);
 });
 
-app.use(express.json());
+app.post("/webhook", async (req, res) => {
+  try {
+    const message =
+      req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
-app.post("/webhook", (req, res) => {
-  console.log(req.body);
-  res.sendStatus(200);
+    if (message) {
+      const from = message.from;
+
+      await axios.post(
+        `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
+        {
+          messaging_product: "whatsapp",
+          to: from,
+          text: {
+            body: "🙏 Welcome to Rekha Astrology. Please tell your problem."
+          }
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+    }
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error.response?.data || error.message);
+    res.sendStatus(500);
+  }
 });
 
-app.listen(process.env.PORT || 3000);
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Server running");
+});
