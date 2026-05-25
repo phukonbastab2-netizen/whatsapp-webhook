@@ -11,6 +11,7 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
+const greetedUsers = new Set();
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
@@ -30,7 +31,11 @@ app.post("/webhook", async (req, res) => {
 
     if (message) {
       const from = message.from;
+if (greetedUsers.has(from)) {
+  return res.sendStatus(200);
+}
 
+greetedUsers.add(from);
       await axios.post(
         `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
         {
