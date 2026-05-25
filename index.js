@@ -61,8 +61,46 @@ await axios.post(
          type: "video",
 video: {
   link: "https://res.cloudinary.com/dalnjvmra/video/upload/v1779695040/WhatsApp_Video_2026-05-25_at_11.59.16_AM_1_agpefu.mp4",
-  caption: "Namaste 🙏\n\nMain aapki problem ko thik karne ke liye vedic puja karti hu 🔮\n\n🌐 Hamari website par jaakar aap previous clients ke reviews aur experiences dekh sakte hain:\nhttps://www.rekhaastrology.in\n\nReply YES to continue."
+  caption: "Namaste 🙏\n\nMain aapki problem ko thik karne ke liye vedic puja karti hu 🔮\n\n🌐 Hamari website par jaakar aap previous clients ke reviews aur experiences dekh sakte hain  \n\n Reply YES to continue."
 }
+await axios.post(
+  `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
+  {
+    messaging_product: "whatsapp",
+    to: from,
+    type: "interactive",
+    interactive: {
+      type: "button",
+      body: {
+        text: "Choose an option below 👇"
+      },
+      action: {
+        buttons: [
+          {
+            type: "reply",
+            reply: {
+              id: "website",
+              title: "🌐 Website"
+            }
+          },
+          {
+            type: "reply",
+            reply: {
+              id: "yes_continue",
+              title: "✅ YES"
+            }
+          }
+        ]
+      }
+    }
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  }
+);
         },
         {
           headers: {
