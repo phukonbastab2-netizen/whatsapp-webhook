@@ -1,6 +1,11 @@
 const express = require("express");
 const axios = require("axios");
+const { Redis } = require("@upstash/redis");
 
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_URL,
+  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+});
 const app = express();
 app.use(express.json());
 app.use((req, res, next) => {
@@ -11,7 +16,13 @@ const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
 
-const greetedUsers = new Set();
+async function hasUserMessaged(from) {
+  return await redis.get(from);
+}
+
+async function saveUser(from) {
+  await redis.set(from, "yes");
+}
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
   const token = req.query["hub.verify_token"];
@@ -36,11 +47,11 @@ app.post("/webhook", async (req, res) => {
       const messageId = message.id;
       const text = message.text?.body?.toLowerCase() || "";
 
-      if (greetedUsers.has(from)) {
+      if (await hasUserMessaged(from)) {
         return res.sendStatus(200);
       }
 
-      greetedUsers.add(from);
+     await saveUser(from);
 
       await axios.post(
         `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
