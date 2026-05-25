@@ -3,7 +3,10 @@ const axios = require("axios");
 
 const app = express();
 app.use(express.json());
-
+app.use((req, res, next) => {
+  console.log("BODY:", JSON.stringify(req.body, null, 2));
+  next();
+});
 const VERIFY_TOKEN = process.env.VERIFY_TOKEN;
 const ACCESS_TOKEN = process.env.ACCESS_TOKEN;
 const PHONE_NUMBER_ID = process.env.PHONE_NUMBER_ID;
