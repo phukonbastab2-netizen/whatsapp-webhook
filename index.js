@@ -38,7 +38,7 @@ app.post("/webhook", async (req, res) => {
           to: from,
          type: "video",
 video: {
-  link: "https://res.cloudinary.com/dalnjvmra/video/upload/v1779691886/WhatsApp_Video_2026-05-25_at_11.59.16_AM_hhctkz.mp4",
+  link: "https://res.cloudinary.com/dalnjvmra/video/upload/v1779695040/WhatsApp_Video_2026-05-25_at_11.59.16_AM_1_agpefu.mp4",
   caption: "🙏 Welcome to Rekha Astrology\n\nReply YES to continue."
 }
         },
