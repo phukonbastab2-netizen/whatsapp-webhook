@@ -56,7 +56,22 @@ app.get("/webhook", (req, res) => {
 
   res.sendStatus(403);
 });
+async function saveLead(phone, message) {
 
+  console.log("Saving lead:", phone, message);
+
+  const { error } = await supabase
+    .from("leads")
+    .insert([
+      {
+        phone,
+        message
+      }
+    ]);
+
+  console.log(error);
+
+}
 app.post("/webhook", async (req, res) => {
   try {
 
@@ -69,6 +84,7 @@ app.post("/webhook", async (req, res) => {
       const messageId = message.id;
       const text = message.text?.body?.toLowerCase() || "";
 await saveLead(from, text);
+    
       if (await hasUserMessaged(from)) {
         return res.sendStatus(200);
       }
