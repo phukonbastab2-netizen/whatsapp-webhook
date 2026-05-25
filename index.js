@@ -26,87 +26,28 @@ app.get("/webhook", (req, res) => {
 
 app.post("/webhook", async (req, res) => {
   try {
+
     const message =
       req.body.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
 
     if (message) {
 
-  const from = message.from;
-  const messageId = message.id;
-  const text = message.text?.body?.toLowerCase() || "";
+      const from = message.from;
+      const messageId = message.id;
+      const text = message.text?.body?.toLowerCase() || "";
 
-  if (greetedUsers.has(from)) {
-    return res.sendStatus(200);
-  }
-
-  greetedUsers.add(from);
-
-  await axios.post(
-    `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
-    {
-      messaging_product: "whatsapp",
-      status: "read",
-      message_id: messageId
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
+      if (greetedUsers.has(from)) {
+        return res.sendStatus(200);
       }
-    }
-  );
 
-  await new Promise(resolve => setTimeout(resolve, 60000));
+      greetedUsers.add(from);
 
-  await axios.post(
-    `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
-    {
-      messaging_product: "whatsapp",
-      to: from,
-      type: "video",
-      video: {
-        link: "https://res.cloudinary.com/dalnjvmra/video/upload/v1779695040/WhatsApp_Video_2026-05-25_at_11.59.16_AM_1_agpefu.mp4",
-        caption: "Namaste 🙏\n\nMain aapki problem ko thik karne ke liye vedic puja karti hu 🔮"
-      }
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
-
-  await axios.post(
-    `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
-    {
-      messaging_product: "whatsapp",
-      to: from,
-      type: "interactive",
-      interactive: {
-        type: "cta_url",
-        body: {
-          text: "Click below to see website reviews 👇"
-        },
-        action: {
-          name: "cta_url",
-          parameters: {
-            display_text: "🌐 Website",
-            url: "https://www.rekhaastrology.in"
-          }
-        }
-      }
-    },
-    {
-      headers: {
-        Authorization: `Bearer ${ACCESS_TOKEN}`,
-        "Content-Type": "application/json"
-      }
-    }
-  );
-
-  return res.sendStatus(200);
-}
+      await axios.post(
+        `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
+        {
+          messaging_product: "whatsapp",
+          status: "read",
+          message_id: messageId
         },
         {
           headers: {
@@ -115,12 +56,67 @@ app.post("/webhook", async (req, res) => {
           }
         }
       );
+
+      await new Promise(resolve => setTimeout(resolve, 60000));
+
+      await axios.post(
+        `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
+        {
+          messaging_product: "whatsapp",
+          to: from,
+          type: "video",
+          video: {
+            link: "https://res.cloudinary.com/dalnjvmra/video/upload/v1779695040/WhatsApp_Video_2026-05-25_at_11.59.16_AM_1_agpefu.mp4",
+            caption: "Namaste 🙏\n\nMain aapki problem ko thik karne ke liye vedic puja karti hu 🔮"
+          }
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      await axios.post(
+        `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
+        {
+          messaging_product: "whatsapp",
+          to: from,
+          type: "interactive",
+          interactive: {
+            type: "cta_url",
+            body: {
+              text: "Click below to see website reviews 👇"
+            },
+            action: {
+              name: "cta_url",
+              parameters: {
+                display_text: "🌐 Website",
+                url: "https://www.rekhaastrology.in"
+              }
+            }
+          }
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+
+      return res.sendStatus(200);
     }
 
     res.sendStatus(200);
+
   } catch (error) {
+
     console.log(error.response?.data || error.message);
+
     res.sendStatus(500);
+
   }
 });
 
