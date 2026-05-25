@@ -1,5 +1,11 @@
 const express = require("express");
 const axios = require("axios");
+const { createClient } = require("@supabase/supabase-js");
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY
+);
 const { Redis } = require("@upstash/redis");
 
 const redis = new Redis({
@@ -22,6 +28,22 @@ async function hasUserMessaged(from) {
 
 async function saveUser(from) {
   await redis.set(from, "yes");
+}
+async function saveLead(phone, message) {
+
+  const { error } = await supabase
+    .from("leads")
+    .insert([
+      {
+        phone,
+        message
+      }
+    ]);
+
+  if (error) {
+    console.log(error);
+  }
+
 }
 app.get("/webhook", (req, res) => {
   const mode = req.query["hub.mode"];
@@ -46,7 +68,7 @@ app.post("/webhook", async (req, res) => {
       const from = message.from;
       const messageId = message.id;
       const text = message.text?.body?.toLowerCase() || "";
-
+await saveLead(from, text);
       if (await hasUserMessaged(from)) {
         return res.sendStatus(200);
       }
