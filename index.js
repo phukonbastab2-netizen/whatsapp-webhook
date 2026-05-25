@@ -38,7 +38,7 @@ if (greetedUsers.has(from)) {
 
 greetedUsers.add(from);
      const messageId = message.id;
-
+await new Promise(resolve => setTimeout(resolve, 60000));
 await axios.post(
   `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
   {
