@@ -31,11 +31,28 @@ app.post("/webhook", async (req, res) => {
 
     if (message) {
       const from = message.from;
+
 if (greetedUsers.has(from)) {
   return res.sendStatus(200);
 }
 
 greetedUsers.add(from);
+     const messageId = message.id;
+
+await axios.post(
+  `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
+  {
+    messaging_product: "whatsapp",
+    status: "read",
+    message_id: messageId
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${ACCESS_TOKEN}`,
+      "Content-Type": "application/json"
+    }
+  }
+); 
       await axios.post(
         `https://graph.facebook.com/v20.0/${PHONE_NUMBER_ID}/messages`,
         {
